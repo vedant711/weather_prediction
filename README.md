@@ -2,7 +2,7 @@ Recommended to run in virtual environment
 
 Activate virtual environment using (in the parent directory)
 
-$Scripts\activate
+$.\Scripts\activate
 
 please do run:
 

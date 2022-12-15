@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='indi.css') }}" type="text/css">
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="header">
+        <p onclick="document.getElementById('edit').style.display=(document.getElementById('edit').style.display == 'none')?'block' :'none'">Edit Username</p>
+        <p onclick="document.getElementById('editpwd').style.display=(document.getElementById('editpwd').style.display == 'none')?'block' :'none'">Edit Password</p>
+        <p onclick="document.getElementById('predict').style.display=(document.getElementById('predict').style.display == 'none')?'block' :'none'">Get Weather Prediction</p>
+        <a href="/logout"><p>Logout</p></a>
+        
+    </div>
+    <script>
+        let row = [['Date','Precipitation','Max Temp','Min Temp','Wind Speed','Forecast']];
+    </script>
+
+    {% with msgs = get_flashed_messages() %}
+    {% if msgs %}
+    {% for msg in msgs %}
+    <p>{{msg}}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% for usr in user %}
+    <div class="container">
+        <h1>Hello!!</h1>
+        <h1>Welcome Back {{usr.name}}</h1>
+        <form action="/editown/{{usr.id}}" method="post" style="display:none;" id="edit">
+            <input type="text" name="name" id="" placeholder="Enter the new username">
+            <input type="submit" value="Edit">
+        </form>
+        
+
+        <form action="/{{usr.id}}" method="post" style="display:none;" id="predict">
+            <input type="text" name="preci" id="" placeholder="Enter the Precipitation">
+            <input type="text" name="temp_max" id="" placeholder="Enter the Max Temperature">
+            <input type="text" name="temp_min" id="" placeholder="Enter the Min Temperature">
+            <input type="text" name="wind" id="" placeholder="Enter the Wind Speed">
+            <input type="submit" value="Forecast">
+        </form>        
+
+        <form action="/editpwd/{{usr.id}}" method="post" style="display:none;" id="editpwd">
+            <input type="password" name="password" id="" placeholder="Enter the new password">
+            <input type="submit" value="Edit">
+        </form>
+    
+        <table>
+        {% if weather %}
+        <tr>
+            <th>Date</th>
+            <th>Precipitation</th>
+            <th>Max Temp</th>
+            <th>Min Temp</th>
+            <th>Wind Speed</th>
+            <th>Forecast</th>
+        </tr>
+        {% endif %}
+        {% for w in weather %}
+        {% if w and w!='id' %}
+    
+        <tr>
+            <td>{{w}}</td>
+            <td>{{weather[w][0]}}</td>
+            <td>{{weather[w][1]}}</td>
+            <td>{{weather[w][2]}}</td>
+            <td>{{weather[w][3]}}</td>
+            <td>{{weather[w][4]}}</td>
+
+        </tr>
+        <script>
+            row.push(['{{w}}','{{weather[w][0]}}','{{weather[w][1]}}','{{weather[w][2]}}','{{weather[w][3]}}','{{weather[w][4]}}'])
+        </script>
+        {% endif %}
+    {% endfor %}
+
+        <script>
+            let csvContent = "data:text/csv;charset=utf-8," 
+                + row.map(e => e.join(",")).join("\n");
+            var encodedUri = encodeURI(csvContent);
+            // var link = document.createElement("a");
+            // link.setAttribute("href", encodedUri);
+            // link.setAttribute("download", "my_data.csv");
+            // document.body.appendChild(link); // Required for FF
+            '{% if weather %}'
+            document.write('<a href=' + encodedUri + '><button>Export Data</button></a>')
+            // link.click();
+            '{% endif %}'
+        </script>
+    </table>
+    <!-- <a href="encodedUri" download="my_data.csv"><button>Export Data</button></a> -->
+    </div>
+    {% endfor %}
+    
+</body>
+</html>

@@ -9,11 +9,14 @@
     <title>Document</title>
 </head>
 <body>
+    {% for usr in user %}
+
     <div class="header">
         <p onclick="document.getElementById('edit').style.display=(document.getElementById('edit').style.display == 'none')?'block' :'none'">Edit Username</p>
         <p onclick="document.getElementById('editpwd').style.display=(document.getElementById('editpwd').style.display == 'none')?'block' :'none'">Edit Password</p>
         <p onclick="document.getElementById('predict').style.display=(document.getElementById('predict').style.display == 'none')?'block' :'none'">Get Weather Prediction</p>
         <p onclick="document.getElementById('alarm').style.display=(document.getElementById('alarm').style.display == 'none')?'block' :'none'">Set Alarm</p>
+        <!-- <a href="/musicplayer/{{usr.id}}"><p onclick="document.getElementById('music').style.display=(document.getElementById('music').style.display == 'none')?'block' :'none'">Music</p></a> -->
         <a href="/logout"><p>Logout</p></a>
         
     </div>
@@ -51,6 +54,16 @@
             <input type="submit" value="Set Alarm">
 
         </form>
+        <div id="music">
+            <a href="/start/{{usr.id}}"><button>Start</button></a>
+            <a href="/play/{{usr.id}}"><button>Play</button></a>
+            <a href="/stop/{{usr.id}}"><button>Stop</button></a>
+            <a href="/pause/{{usr.id}}"><button>Pause</button></a>
+            <a href="/next/{{usr.id}}"><button>Next</button></a>
+
+            <!-- <a href="/play"><button>Play</button></a> -->
+
+        </div>
         {% with msgs = get_flashed_messages() %}
         {% if msgs %}
         {% for msg in msgs %}
@@ -58,7 +71,6 @@
         {% endfor %}
         {% endif %}
         {% endwith %}
-        {% for usr in user %}
     
         <table>
         {% if weather %}

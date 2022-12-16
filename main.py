@@ -10,6 +10,9 @@ import random
 import csv
 from playsound import playsound
 from threading import Thread
+from tkinter.filedialog import askdirectory
+import os
+import pygame
 
 app = Flask(__name__)
 model = pickle.load(open('model.pkl', 'rb'))
@@ -231,6 +234,70 @@ def thread(id):
     t.run()
     return redirect('/'+id)
 
+pygame.init()
+pygame.mixer.init()
+song_list = os.listdir('music')
+global curr_song
+curr_song=song_list[0]
+
+
+# @app.route('/musicplayer/<id>')
+# def musicplayer(id):
+#     # directory = askdirectory()
+#     # os.chdir(directory)
+#     # song_list=['alarm_classic.mp3',]
+    
+#     # print(song_list)
+    
+
+@app.route('/start/<id>')
+def start(id):
+    pygame.mixer.music.load('music/'+curr_song)
+    pygame.mixer.music.play()
+    flash(f'Now Playing {curr_song}')
+    return redirect('/'+id)
+    
+
+@app.route('/play/<id>')
+def play(id):
+    pygame.mixer.music.unpause()
+    flash(f'Now Playing {curr_song}')
+    return redirect('/'+id)
+
+
+@app.route('/pause/<id>')
+def pause(id):
+    pygame.mixer.music.pause()
+    flash(f'Now Playing {curr_song}')
+    return redirect('/'+id)
+
+@app.route('/stop/<id>')
+def stop(id):
+    global curr_song
+    curr_song = song_list[0]
+    pygame.mixer.music.stop()
+    return redirect('/'+id)
+
+@app.route('/next/<id>')
+def next(id):
+    global curr_song
+    c_song = curr_song
+    print(c_song)
+    if c_song!=song_list[len(song_list)-1]:
+        index = song_list.index(c_song)
+        pygame.mixer.music.load('music/'+song_list[index+1])
+        c_song = song_list[index+1]
+    else:
+        print('hi')
+        pygame.mixer.music.load('music/'+song_list[0])
+        c_song = song_list[0]
+    curr_song = c_song
+    flash(f'Now Playing {curr_song}')
+
+
+    pygame.mixer.music.play()
+    return redirect('/'+id)
+    
 
 @app.route('/logout')
 def logout():
@@ -276,6 +343,10 @@ def alarm(id):
                 playsound('alarm_classic.mp3')
                 break
     return redirect('/'+id)
+
+
+
+
 
 if __name__=='__main__':
     app.run(debug=True)

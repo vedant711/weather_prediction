@@ -50,6 +50,12 @@ class Alarm(db.Model):
     time=db.Column(db.String(11),nullable=False)
     
 
+class Music(db.Model):
+    id=db.Column(db.Integer,primary_key=True)
+    name=db.Column(db.String(20),nullable=False)
+    song=db.Column(db.String(110),nullable=False)
+    date_time = db.Column(db.String(110),nullable=False)
+
 app.app_context().push()
 
 
@@ -254,6 +260,11 @@ curr_song=song_list[0]
 def start(id):
     pygame.mixer.music.load('music/'+curr_song)
     pygame.mixer.music.play()
+    usr = User.query.filter(User.id==id).first()
+    name = usr.name
+    mus = Music(name=name, song=curr_song, date_time=datetime.datetime.now())
+    db.session.add(mus)
+    db.session.commit()
     flash(f'Now Playing {curr_song}')
     return redirect('/'+id)
     
@@ -287,11 +298,17 @@ def next(id):
         index = song_list.index(c_song)
         pygame.mixer.music.load('music/'+song_list[index+1])
         c_song = song_list[index+1]
+        
     else:
-        print('hi')
+        # print('hi')
         pygame.mixer.music.load('music/'+song_list[0])
         c_song = song_list[0]
     curr_song = c_song
+    usr = User.query.filter(User.id==id).first()
+    name = usr.name
+    mus = Music(name=name, song=curr_song, date_time=datetime.datetime.now())
+    db.session.add(mus)
+    db.session.commit()
     flash(f'Now Playing {curr_song}')
 
 

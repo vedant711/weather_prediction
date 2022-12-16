@@ -8,7 +8,8 @@ import datetime
 import requests
 import random
 import csv
-
+from playsound import playsound
+from threading import Thread
 
 app = Flask(__name__)
 model = pickle.load(open('model.pkl', 'rb'))
@@ -219,9 +220,50 @@ def edit_pwd(id):
 #         writer.writerows(csv_row)
 #     return redirect('/'+str(dates[0]))
 
+@app.route('/setalarm/<id>', methods=['GET','POST'])
+def thread(id):
+    t=Thread(target=alarm,args=(id,))
+    t.run()
+
 @app.route('/logout')
 def logout():
     return redirect('/')
+
+def alarm(id):
+    time = request.form.get('time')
+    if len(time) != 11:
+        vali = 'Incorrect format'
+    elif int(time[:2]) > 12 and int(time[:2])<0:
+        vali = 'Incorrect format'
+    elif int(time[3:5]) >= 60 and int(time[3:5]) < 0:
+        vali = 'Incorrect format'
+    elif int(time[6:8]) >= 60 and int(time[6:8]) < 0:
+        vali = 'Incorrect format'
+    elif time[9:11].lower() != 'am' and time[9:11].lower() != 'pm':
+        vali = 'Incorrect format'
+    else:
+        vali = 'ok'
+    
+    # w = Label(root, text=vali,font=("Helvetica 10 bold"),fg="red")
+
+    if vali != 'ok':
+        # print(vali)
+        # print(time)
+        # w.pack()
+        flash(vali)
+    else:
+        flash(f'Alarm set for {time}')
+        # Label(root, text=f'Alarm set for {time}',font=("Helvetica 10 bold"),fg="red").pack()
+        while True:
+            # print('sleep')
+            now = datetime.datetime.now()
+            if int(time[:2]) == int(now.strftime('%I')) and int(time[3:5]) == int(now.strftime('%M')) and int(time[6:8]) == int(now.strftime('%S')) and time[9:11].upper() == now.strftime('%p'):
+                # print('Wake Up!')
+                # Label(root, text=f'Wake Up!',font=("Helvetica 10 bold"),fg="red").pack()
+                flash('Wake Up!')
+                playsound('alarm_classic.mp3')
+                break
+    return redirect('/'+id)
 
 if __name__=='__main__':
     app.run(debug=True)

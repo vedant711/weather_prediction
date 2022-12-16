@@ -13,6 +13,7 @@
         <p onclick="document.getElementById('edit').style.display=(document.getElementById('edit').style.display == 'none')?'block' :'none'">Edit Username</p>
         <p onclick="document.getElementById('editpwd').style.display=(document.getElementById('editpwd').style.display == 'none')?'block' :'none'">Edit Password</p>
         <p onclick="document.getElementById('predict').style.display=(document.getElementById('predict').style.display == 'none')?'block' :'none'">Get Weather Prediction</p>
+        <p onclick="document.getElementById('alarm').style.display=(document.getElementById('alarm').style.display == 'none')?'block' :'none'">Set Alarm</p>
         <a href="/logout"><p>Logout</p></a>
         
     </div>
@@ -48,6 +49,12 @@
         <form action="/editpwd/{{usr.id}}" method="post" style="display:none;" id="editpwd">
             <input type="password" name="password" id="" placeholder="Enter the new password">
             <input type="submit" value="Edit">
+        </form>
+
+        <form action="/setalarm/{{usr.id}}" method="post" style="display: none;" id="alarm">
+            <input type="text" name="time" id="" placeholder="Enter the time in HH:MM:SS AM/PM">
+            <input type="submit" value="Set Alarm">
+
         </form>
     
         <table>

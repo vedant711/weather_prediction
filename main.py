@@ -224,6 +224,8 @@ def edit_pwd(id):
 def thread(id):
     t=Thread(target=alarm,args=(id,))
     t.run()
+    return redirect('/'+id)
+
 
 @app.route('/logout')
 def logout():

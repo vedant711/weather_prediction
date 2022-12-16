@@ -40,6 +40,11 @@ class Weather(db.Model):
     wind_speed=db.Column(db.String(20),nullable=False)
     forecast=db.Column(db.String(20),nullable=False)
     # sunday=db.Column(db.String(20),nullable=False)
+
+class Alarm(db.Model):
+    id=db.Column(db.Integer,primary_key=True)
+    name=db.Column(db.String(20),nullable=False)
+    time=db.Column(db.String(11),nullable=False)
     
 
 app.app_context().push()
@@ -232,6 +237,8 @@ def logout():
     return redirect('/')
 
 def alarm(id):
+    usr = User.query.filter(User.id==id).first()
+    name = usr.name
     time = request.form.get('time')
     if len(time) != 11:
         vali = 'Incorrect format'
@@ -255,6 +262,9 @@ def alarm(id):
         flash(vali)
     else:
         flash(f'Alarm set for {time}')
+        ala = Alarm(name=name, time=time)
+        db.session.add(ala)
+        db.session.commit()
         # Label(root, text=f'Alarm set for {time}',font=("Helvetica 10 bold"),fg="red").pack()
         while True:
             # print('sleep')

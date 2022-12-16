@@ -23,14 +23,7 @@
 
     
     <div class="container">
-        {% with msgs = get_flashed_messages() %}
-        {% if msgs %}
-        {% for msg in msgs %}
-        <p>{{msg}}</p>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        {% for usr in user %}
+
 
         <h1>Hello!!</h1>
         <h1>Welcome Back {{usr.name}}</h1>
@@ -58,6 +51,14 @@
             <input type="submit" value="Set Alarm">
 
         </form>
+        {% with msgs = get_flashed_messages() %}
+        {% if msgs %}
+        {% for msg in msgs %}
+        <p>{{msg}}</p>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        {% for usr in user %}
     
         <table>
         {% if weather %}

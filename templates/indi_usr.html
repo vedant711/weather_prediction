@@ -36,13 +36,13 @@
         </form>
         
 
-        <form action="/{{usr.id}}" method="post" style="display:none;" id="predict">
+        <!-- <form action="/{{usr.id}}" method="post" style="display:none;" id="predict">
             <input type="text" name="preci" id="" placeholder="Enter the Precipitation">
             <input type="text" name="temp_max" id="" placeholder="Enter the Max Temperature">
             <input type="text" name="temp_min" id="" placeholder="Enter the Min Temperature">
             <input type="text" name="wind" id="" placeholder="Enter the Wind Speed">
             <input type="submit" value="Forecast">
-        </form>        
+        </form>         -->
 
         <form action="/editpwd/{{usr.id}}" method="post" style="display:none;" id="editpwd">
             <input type="password" name="password" id="" placeholder="Enter the new password">
@@ -72,7 +72,7 @@
         {% endif %}
         {% endwith %}
     
-        <table>
+        <table id="predict" style="display:none">
         {% if weather %}
         <tr>
             <th>Date</th>

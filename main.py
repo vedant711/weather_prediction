@@ -14,6 +14,9 @@ from tkinter.filedialog import askdirectory
 import os
 import pygame
 
+import pymysql
+pymysql.install_as_MySQLdb()
+
 app = Flask(__name__)
 model = pickle.load(open('model.pkl', 'rb'))
 
@@ -110,59 +113,71 @@ def create():
 @app.route('/<id>',methods=['GET','POST'])
 def indi_usr(id):
     usr=User.query.filter(User.id==id).all()
-    if request.method=='POST':
+    # if request.method=='POST':
         # api_key = 'ddf2df38a550175470ef6bf036a717f7'
-        final_features = [float(x) for x in request.form.values()]
+        # final_features = [float(x) for x in request.form.values()]
         # final_features = [list(int_features)]
         # print(final_features)
-        weat1={}
-        today = datetime.date.today()
-        dates = [today + datetime.timedelta(days=i) for i in range(0 - today.weekday(), 7 - today.weekday())]
-        final_list=[]
-        global weather
-        weather = {}
-        for date in dates:
-            date = pd.to_datetime(date)
-            date = date.strftime('%d.%m.%Y')
-            d1 = [date]
-            d=pd.DataFrame(d1)
-            year = pd.DatetimeIndex(d[0]).year
-            month = pd.DatetimeIndex(d[0]).month
-            day = pd.DatetimeIndex(d[0]).day
-            dayofyear = pd.DatetimeIndex(d[0]).dayofyear
-            weekofyear = pd.DatetimeIndex(d[0]).weekofyear
-            weekday = pd.DatetimeIndex(d[0]).weekday
-            quarter = pd.DatetimeIndex(d[0]).quarter
-            is_month_start = pd.DatetimeIndex(d[0]).is_month_start
-            is_month_end = pd.DatetimeIndex(d[0]).is_month_end
-            d2 = [year[0], month[0],day[0],dayofyear[0],weekofyear[0],weekday[0],quarter[0],is_month_start[0],is_month_end[0]]
-            new_list = final_features + d2
-            # final_list.append(new_list)
-            weather_pred = model.predict([np.array(new_list)])
-            weather_pred = list(weather_pred)
-            weather[date] = [final_features[0],final_features[1],final_features[2],final_features[3],weather_pred[0]]
-            # weat1[date] = weather_pred
-            weat = Weather(name=usr[0].name,date=date,precipitation=final_features[0],max_temp=final_features[1],min_temp=final_features[2],wind_speed=final_features[3],forecast=weather_pred[0])
-            db.session.add(weat)
+    weat1={}
+    today = datetime.date.today()
+    dates = [today + datetime.timedelta(days=i) for i in range(0 - today.weekday(), 7 - today.weekday())]
+    final_list=[]
+    global weather
+    weather = {}
+    for date in dates:
+        date = pd.to_datetime(date)
+        date = date.strftime('%d.%m.%Y')
+        d1 = [date]
+        d=pd.DataFrame(d1)
+        year = pd.DatetimeIndex(d[0]).year
+        month = pd.DatetimeIndex(d[0]).month
+        day = pd.DatetimeIndex(d[0]).day
+        dayofyear = pd.DatetimeIndex(d[0]).dayofyear
+        weekofyear = pd.DatetimeIndex(d[0]).weekofyear
+        weekday = pd.DatetimeIndex(d[0]).weekday
+        quarter = pd.DatetimeIndex(d[0]).quarter
+        is_month_start = pd.DatetimeIndex(d[0]).is_month_start
+        is_month_end = pd.DatetimeIndex(d[0]).is_month_end
+        d2 = [year[0], month[0],day[0],dayofyear[0],weekofyear[0],weekday[0],quarter[0],is_month_start[0],is_month_end[0]]
+        lat = '22.3072'
+        lon = '73.1812'
+        API_key = 'ddf2df38a550175470ef6bf036a717f7'
+        url = f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}'
 
-            for ele in final_features:
-                i=round(random.uniform(-10,10),2)
-                ind = final_features.index(ele)
-                if ind!=len(final_features)-1:
-                    ele+=i
-                else:
-                    ele+=i
-                    if ele < 0:
-                        ele=0
-                final_features[ind] = round(ele,2)
-        db.session.commit()
-        
-        # weather={}
-        # for tup in final_list:
-        #     weather_pred = model.predict([np.array(tup)])
-        #     weather.append(weather_pred)
-        return render_template('indi_usr.html',user=usr,weather=weather)
-    return render_template('indi_usr.html',user=usr)
+        r = requests.post(url)
+        resp_dict = r.json()
+        max_temp = resp_dict['main']['temp_max'] - 272
+        min_temp = resp_dict['main']['temp_min'] - 272
+        wind_speed = resp_dict['wind']['speed']
+        precipitation = resp_dict['main']['humidity']
+        final_features= [precipitation,max_temp,min_temp,wind_speed]
+        new_list = final_features + d2
+        # final_list.append(new_list)
+        weather_pred = model.predict([np.array(new_list)])
+        weather_pred = list(weather_pred)
+        weather[date] = [final_features[0],final_features[1],final_features[2],final_features[3],weather_pred[0]]
+        # weat1[date] = weather_pred
+        weat = Weather(name=usr[0].name,date=date,precipitation=final_features[0],max_temp=final_features[1],min_temp=final_features[2],wind_speed=final_features[3],forecast=weather_pred[0])
+        db.session.add(weat)
+
+        for ele in final_features:
+            i=round(random.uniform(-10,10),2)
+            ind = final_features.index(ele)
+            if ind!=len(final_features)-1:
+                ele+=i
+            else:
+                ele+=i
+                if ele < 0:
+                    ele=0
+            final_features[ind] = round(ele,2)
+    db.session.commit()
+    
+    # weather={}
+    # for tup in final_list:
+    #     weather_pred = model.predict([np.array(tup)])
+    #     weather.append(weather_pred)
+    return render_template('indi_usr.html',user=usr,weather=weather)
+    # return render_template('indi_usr.html',user=usr)
     
 
 # @app.route('/predict')
